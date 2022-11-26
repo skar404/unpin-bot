@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 
 import uvloop
 
-from pyrogram import Client, idle
+from pyrogram import Client, idle, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 from core import log, context
@@ -65,25 +65,53 @@ def get_period_str(d: timedelta) -> str:
     return m
 
 
-@app.on_message()
-async def hello(client: Client, message: Message):
-    if message.pinned_message:
-        pin = await PinMessage.create(
-            chat_id=message.chat.id,
-            message_id=message.id,
-            unpin_date=datetime.utcnow() + timedelta(days=1, hours=1),
-        )
+async def send_pin_message(message: Message):
+    pin = await PinMessage.create(
+        chat_id=message.chat.id,
+        message_id=message.id,
+        unpin_date=datetime.utcnow() + timedelta(days=1, hours=1),
+    )
 
-        diff = (pin.unpin_date - pin.created_at)
-        await message.reply_text(
-            text=f'Сообщение будет откреплено через {get_period_str(diff)}',
-            disable_notification=True,
-            reply_markup=IN_LINE_BUTTONS,
-        )
+    diff = (pin.unpin_date - pin.created_at)
+    await message.reply_text(
+        text=f'Сообщение будет откреплено через {get_period_str(diff)}',
+        disable_notification=True,
+        reply_markup=IN_LINE_BUTTONS,
+    )
+
+
+@app.on_message(filters.pinned_message, group=1)
+async def on_pinned(client: Client, message: Message):
+    await send_pin_message(message)
+
+
+@app.on_message(filters.command(['pin']) & filters.reply, group=1)
+async def command_pin(client: Client, message: Message):
+    await message.reply_to_message.pin(
+        disable_notification=True,
+    )
+    await send_pin_message(message.reply_to_message)
+
+
+@app.on_message(filters.command(['del']) & filters.reply, group=1)
+async def command_pin(client: Client, message: Message):
+    if message.reply_to_message.from_user.id == client.me.id:
+        await message.reply_to_message.delete()
+    await message.delete()
+
+
+@app.on_message(filters.command(['ping']))
+async def command_pin(client: Client, message: Message):
+    await message.reply_text('pong')
 
 
 @app.on_callback_query()
 async def inline_query(client, query):
+    # когда-то добавить правда проверку на то что это наша кнопка
+    if query.from_user.id != query.message.reply_to_message.from_user.id:
+        await query.answer(text='Ошибка, не вы автор сообщения')
+        return
+
     data = query.data.split(':')[1]
 
     maps = {
