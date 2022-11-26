@@ -150,5 +150,4 @@ async def bot():
 
 
 if __name__ == '__main__':
-    app.loop.create_task(looooooop())
     app.run(bot())
