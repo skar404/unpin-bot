@@ -67,8 +67,8 @@ def get_period_str(d: timedelta) -> str:
 
 async def send_pin_message(message: Message, chat_id, message_id):
     pin = await PinMessage.create(
-        chat_id=message.chat.id,
-        message_id=message.id,
+        chat_id=chat_id,
+        message_id=message_id,
         unpin_date=datetime.utcnow() + timedelta(days=1, hours=1),
     )
 
@@ -170,11 +170,14 @@ async def looooooop():
                 .where(PinMessage.unpin_date < datetime.utcnow()) \
                 .gino.all()
             for p in pins:
-                m = await app.get_messages(p.chat_id, p.message_id)
-                await m.unpin()
+                try:
+                    m = await app.get_messages(p.chat_id, p.message_id)
+                    await m.unpin()
+                except Exception as e:
+                    log.exception('skip unpin ex=%s', e)
                 await p.update(on_delete=True).apply()
         except Exception as ex:
-            log.error(ex)
+            log.exception(ex)
         await asyncio.sleep(settings.loop)
 
 
