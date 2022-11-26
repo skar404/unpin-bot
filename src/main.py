@@ -65,7 +65,7 @@ def get_period_str(d: timedelta) -> str:
     return m
 
 
-async def send_pin_message(message: Message):
+async def send_pin_message(message: Message, chat_id, message_id):
     pin = await PinMessage.create(
         chat_id=message.chat.id,
         message_id=message.id,
@@ -82,7 +82,7 @@ async def send_pin_message(message: Message):
 
 @app.on_message(filters.pinned_message, group=1)
 async def on_pinned(client: Client, message: Message):
-    await send_pin_message(message)
+    await send_pin_message(message, chat_id=message.chat.id, message_id=message.pinned_message.id)
 
 
 @app.on_message(filters.command(['pin']) & filters.reply, group=1)
@@ -90,7 +90,7 @@ async def command_pin(client: Client, message: Message):
     await message.reply_to_message.pin(
         disable_notification=True,
     )
-    await send_pin_message(message.reply_to_message)
+    await send_pin_message(message.reply_to_message, message.chat.id, message.reply_to_message.id)
 
 
 @app.on_message(filters.command(['del']) & filters.reply, group=1)
@@ -164,6 +164,7 @@ async def looooooop():
             continue
 
         try:
+            log.info('looooooop')
             pins = await PinMessage.query \
                 .where(PinMessage.on_delete == False) \
                 .where(PinMessage.unpin_date < datetime.utcnow()) \
