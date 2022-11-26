@@ -109,13 +109,17 @@ async def command_pin(client: Client, message: Message):
 async def command_pin(client: Client, message: Message):
     await client.send_message(
         message.chat.id,
-        "Привет\n"
-        "Бот для автоматического открепления сообщений в чатах спустя 24 часа\n"
+        "Привет, бот для автоматического открепления сообщений в чатах спустя 24 часа\n"
         "Для его работы нужно добавить его в группу и дать права администратора\n\n"
         "Команды для группы:\n"
         "/pin - открепить сообщение\n"
         "/ping - проверить работоспособность бота\n"
-        "/del - удалить сообщение бота (когда что-то пошло не так)"
+        "/del - удалить сообщение бота (когда что-то пошло не так)\n\n"
+        "Если у вас есть вопросы, идеи, хотите помочь или нашли баг/опечатку, пишите: @denis_malin\n",
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [InlineKeyboardButton("GitHub", url="https://github.com/skar404/unpin-bot/")]
+            ])
     )
 
 
