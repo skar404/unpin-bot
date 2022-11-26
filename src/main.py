@@ -105,6 +105,19 @@ async def command_pin(client: Client, message: Message):
     await message.reply_text('pong')
 
 
+@app.on_message(filters.command(['start', 'help']))
+async def command_pin(client: Client, message: Message):
+    await client.send_message(
+        message.chat.id,
+        "Привет\n"
+        "Бот для автоматического открепления сообщений в чатах спустя 24 часа\n"
+        "Команды для группы:\n"
+        "/pin - открепить сообщение\n"
+        "/ping - проверить работоспособность бота\n"
+        "/del - удалить сообщение бота (когда что-то пошло не так)"
+    )
+
+
 @app.on_callback_query()
 async def inline_query(client, query):
     # когда-то добавить правда проверку на то что это наша кнопка
