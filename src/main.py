@@ -139,7 +139,10 @@ async def inline_query(client, query):
 
     pin = await PinMessage.query \
         .where(PinMessage.chat_id == query.message.chat.id) \
-        .where(PinMessage.message_id == query.message.reply_to_message.id).gino.first()
+        .where(PinMessage.message_id.in_([
+        query.message.reply_to_message.id,
+        query.message.reply_to_message.pinned_message.id,
+    ])).gino.first()
 
     if data in ('infinitely', 'ok'):
         if data == 'infinitely':
