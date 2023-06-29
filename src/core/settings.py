@@ -10,6 +10,7 @@ class Settings(BaseSettings):
 
     loop: int = 1 * 60
     sleep: int = 1
+    in_memory: bool = True
 
     class Config:
         env_file = '.env', '../.env'

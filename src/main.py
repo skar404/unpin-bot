@@ -16,7 +16,7 @@ app = Client(
     api_id=settings.api_id,
     api_hash=settings.api_hash,
     bot_token=settings.token,
-    in_memory=True,
+    in_memory=settings.in_memory,
 )
 
 IN_LINE_BUTTONS = InlineKeyboardMarkup(
