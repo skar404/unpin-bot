@@ -174,8 +174,8 @@ async def looooooop():
                 .gino.all()
             for p in pins:
                 try:
-                    m = await app.get_messages(p.chat_id, p.message_id)
-                    await m.unpin()
+                    await app.unpin_chat_message(p.chat_id, p.message_id)
+                    log.info(f'unpin_chat_message {p.chat_id=} {p.message_id=}')
                 except Exception as e:
                     log.exception('skip unpin ex=%s', e)
                 await p.update(on_delete=True).apply()
@@ -191,11 +191,11 @@ async def bot():
     await context.db.set_bind(settings.db)
     log.info('init db')
 
-    context.on_run = True
     log.info('start app')
 
     loop.create_task(looooooop())
     await app.start()
+    context.on_run = True
     log.info('start bot')
     await idle()
     await app.stop()
